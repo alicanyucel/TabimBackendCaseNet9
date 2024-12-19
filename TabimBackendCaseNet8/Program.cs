@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using TabimBackendCaseNet8.Context;
+
 namespace TabimBackendCaseNet8
 {
     public class Program
@@ -10,6 +13,17 @@ namespace TabimBackendCaseNet8
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddCors(opt =>
+            {
+                opt.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                });
+            });
+            builder.Services.AddDbContext<ApplicationDbContext>(opt =>
+            {
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
+            });
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
@@ -20,7 +34,7 @@ namespace TabimBackendCaseNet8
             {
                 app.MapOpenApi();
             }
-
+            app.UseCors();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
