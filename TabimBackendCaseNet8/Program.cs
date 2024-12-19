@@ -1,5 +1,7 @@
 
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using TabimBackendCaseNet8.Context;
 
 namespace TabimBackendCaseNet8
@@ -9,10 +11,8 @@ namespace TabimBackendCaseNet8
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
             builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddCors(opt =>
             {
                 opt.AddDefaultPolicy(builder =>
@@ -24,6 +24,7 @@ namespace TabimBackendCaseNet8
             {
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
             });
+            builder.Services.AddSwaggerGen();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
@@ -32,14 +33,16 @@ namespace TabimBackendCaseNet8
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                    c.RoutePrefix = "api-docs"; 
+                });
             }
             app.UseCors();
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
